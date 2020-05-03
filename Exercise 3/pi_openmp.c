@@ -18,8 +18,6 @@ int main(int argc, const char *argv[])
 
     step = 1.0 / (double)steps;
 
-    int nthreads, tid, procs, maxt, inpar, dynamic, nested;
-
     /* Compute times for 1-MAX_THREADS */
     for (j = 1; j <= MAX_THREADS; j++)
     {
@@ -29,7 +27,7 @@ int main(int argc, const char *argv[])
 
         omp_set_dynamic(1);
 
-#pragma omp parallel private(nthreads, tid)
+#pragma omp parallel
         {
 #pragma omp for reduction(+ \
                           : sum) private(x)
@@ -39,13 +37,13 @@ int main(int argc, const char *argv[])
                 sum += 4.0 / (1.0 + x * x);
             }
             /* End for parallel */
-            tid = omp_get_thread_num();
+
             pi = step * sum;
             delta = omp_get_wtime() - start;
-
             /* Print PI */
+            printf("*  Running on %d threads: \n", j);
             printf("PI = %.16g computed in %.4g seconds\n \n", pi, delta);
-
+            printf("------------------------------------------------------\n");
         }
     }
 }
