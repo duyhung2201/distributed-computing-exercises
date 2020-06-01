@@ -27,8 +27,6 @@ def send_tweets_to_spark(http_resp, tcp_connection):
             else:
                 sentiment = "NEUTRAL"
             mess =  sentiment + '||||' + tweet_text + '\n' 
-            print("Tweet Text: " + mess)
-            print ("------------------------------------------")
             tcp_connection.send(bytes(mess, 'utf-8'))
         except:
             e = sys.exc_info()[0]
@@ -37,8 +35,9 @@ def send_tweets_to_spark(http_resp, tcp_connection):
 
 def get_tweets():
     url = 'https://stream.twitter.com/1.1/statuses/filter.json'
-    # query_data = [('language', 'en'), ('locations', '105.529736,20.746974,106.055520,21.151965'), ('track', '#')]
-    query_data = [('language', 'en'), ('locations', '-122.75,36.8,-121.75,37.8,-74,40,-73,41'), ('track', '#flu')] #this location value is San Francisco & NYC
+    # query_data = [('language', 'en'), ('locations', '105.529736,20.746974,106.055520,21.151965')]
+    # query_data = [('language', 'en'), ('locations', '-122.75,36.8,-121.75,37.8,-74,40,-73,41')] #this location value is San Francisco & NYC
+    query_data = [('language', 'en'), ('follow', '25073877')]
     query_url = url + '?' + '&'.join([str(t[0]) + '=' + str(t[1]) for t in query_data])
     response = requests.get(query_url, auth=my_auth, stream=True)
     print(query_url, response)

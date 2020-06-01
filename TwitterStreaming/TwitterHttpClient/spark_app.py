@@ -3,6 +3,7 @@ from pyspark.streaming import StreamingContext
 from pyspark.sql import Row,SQLContext
 import sys
 import requests
+import re
 
 # create spark configuration
 conf = SparkConf()
@@ -11,7 +12,7 @@ conf.setAppName("TwitterStreamApp")
 sc = SparkContext(conf=conf)
 sc.setLogLevel("ERROR")
 # creat the Streaming Context from the above spark context with window size 2 seconds
-ssc = StreamingContext(sc, 1)
+ssc = StreamingContext(sc, 10)
 # setting a checkpoint to allow RDD recovery
 ssc.checkpoint("checkpoint_TwitterApp")
 # read data from port 9009
@@ -40,10 +41,14 @@ def send_df_to_dashboard(df):
     # extract the hashtags from dataframe and convert them into array
     top_tags = [str(t.hashtag) for t in df.select("hashtag").collect()]
     # extract the counts from dataframe and convert them into array
-    tags_count = [p.hashtag_count for p in df.select("hashtag_count").collect()]
+    # tags_count = [p.hashtag_count for p in df.select("hashtag_count").collect()]
+
+    pos = [p.pos for p in df.select("pos").collect()]
+    neu = [p.neu for p in df.select("neu").collect()]
+    neg = [p.neg for p in df.select("neg").collect()]
     # initialize and send the data through REST API
     url = 'http://localhost:5001/updateData'
-    request_data = {'label': str(top_tags), 'data': str(tags_count)}
+    request_data = {'label': str(top_tags), 'data_pos': str(pos), 'data_neu': str(neu), 'data_neg': str(neg)}
     response = requests.post(url, data=request_data)
 
 
@@ -69,12 +74,13 @@ def process_rdd(time, rdd):
 
 def test(line):
     data = list(line.split("||||"))
+    tweet = re.sub('[^A-Za-z0-9# ]+', '', data[1])
     if data[0] == "POSITIVE":
-        result = map(lambda x: (x, 1, 0, 0), data[1].split(" "))
+        result = map(lambda x: (x, 1, 0, 0), tweet.split(" "))
     elif data[0] == "NEUTRAL":
-        result = map(lambda x: (x, 0, 1, 0), data[1].split(" "))
+        result = map(lambda x: (x, 0, 1, 0), tweet.split(" "))
     else:
-        result = map(lambda x: (x, 0, 0, 1), data[1].split(" "))
+        result = map(lambda x: (x, 0, 0, 1), tweet.split(" "))
 
     return list(result)
 
