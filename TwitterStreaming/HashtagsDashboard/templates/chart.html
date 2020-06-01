@@ -78,27 +78,23 @@
            var src_Data_neu = [];
            var src_Data_neg = [];
 
-            setInterval(function(){
-                $.getJSON('/refreshData', {
-                }, function(data) {
-                    src_Labels = data.sLabel;
-                    src_Data_pos = data.sData_pos;
-                    src_Data_neu = data.sData_neu;
-                    src_Data_neg = data.sData_neg;
-                });
+            // setInterval(function(){
+            //     $.getJSON('/refreshData', {
+            //     }, function(data) {
+            //         src_Labels = data.sLabel;
+            //         src_Data_pos = data.sData_pos;
+            //         src_Data_neu = data.sData_neu;
+            //         src_Data_neg = data.sData_neg;
+            //     });
 
-                myChart.data.labels = src_Labels;
-                myChart.data.datasets[0].data = src_Data_pos;
-                myChart.data.datasets[1].data = src_Data_neu;
-                myChart.data.datasets[2].data = src_Data_neg;
+            //     myChart.data.labels = src_Labels;
+            //     myChart.data.datasets[0].data = src_Data_pos;
+            //     myChart.data.datasets[1].data = src_Data_neu;
+            //     myChart.data.datasets[2].data = src_Data_neg;
                 
-                myChart.update();
+            //     myChart.update();
 
-            },1000);
-
-
-
-
+            // },10100);
 
         </script>
 
