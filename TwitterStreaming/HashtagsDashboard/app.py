@@ -4,22 +4,24 @@ import ast
 
 app = Flask(__name__)
 
-
 labels = []
 values_pos = []
 values_neu = []
 values_neg = []
 
 @app.route("/")
-def chart():
+def get_chart_page():
     global labels, values_pos, values_neu, values_neg
-    
-    labels = ["#bunkerbitch", "#bunkerboy", "#fakepresident", "#trumpresignnow", "#resignnowtrump", "#bunkerbaby", "#protests2020", "#blacklivesmatter", "#anonymous", "#maga"]
-    values_pos = ["155","103","47","23","23","31","17","20","14","34"]
-    values_neu = ["353","189","83","58","24","39","30","16","26","25"]
-    values_neg = ["367","227","164","113","95","37","49","58","53","34"]
-    return render_template('chart.html', values_pos=values_pos, values_neu=values_neu, values_neg=values_neg, labels=labels)
+    labels = []
+    values_pos = []
+    values_neu = []
+    values_neg = []
 
+    # labels = ["#bunkerbitch", "#bunkerboy", "#fakepresident", "#trumpresignnow", "#resignnowtrump", "#bunkerbaby", "#protests2020", "#blacklivesmatter", "#anonymous", "#maga"]
+    # values_pos = ["155","103","47","23","23","31","17","20","14","34"]
+    # values_neu = ["353","189","83","58","24","39","30","16","26","25"]
+    # values_neg = ["367","227","164","113","95","37","49","58","53","34"]
+    return render_template('chart.html', values_pos=values_pos, values_neu=values_neu, values_neg=values_neg, labels=labels)
 
 @app.route('/refreshData')
 def refresh_graph_data():
@@ -30,7 +32,6 @@ def refresh_graph_data():
     # print("data now: " + str(values_neg))
 
     return jsonify(sLabel=labels, sData_pos=values_pos, sData_neu=values_neu, sData_neg=values_neg)
-
 
 @app.route('/updateData', methods=['POST'])
 def update_data_post():

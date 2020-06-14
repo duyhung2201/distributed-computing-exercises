@@ -6,19 +6,21 @@ import json
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 # Replace the values below with yours
-ACCESS_TOKEN = "2455225267-TUcTHNheAWqWVBuaE72v5yB6mzdHuw7fJZfyglJ"
-ACCESS_SECRET = "8MCbVbzFH2tn50Gkb1VLWMStJGYdcyHvFMM6WqGVbCds8"
-CONSUMER_KEY = 'eLWxJbi9lHqDfZmmHsUY5mz8z'
-CONSUMER_SECRET = 'QAnQ63QdgGNX2h7w82s0qqejFmpdXjYbUblOREZzy5WmHFPrsR'
+ACCESS_TOKEN = 'YOUR_ACCESS_TOKEN'
+ACCESS_SECRET = 'YOUR_ACCESS_SECRET'
+CONSUMER_KEY = 'YOUR_CONSUMER_KEY'
+CONSUMER_SECRET = 'YOUR_CONSUMER_SECRET'
 my_auth = requests_oauthlib.OAuth1(CONSUMER_KEY, CONSUMER_SECRET,ACCESS_TOKEN, ACCESS_SECRET)
 
 analyzer = SentimentIntensityAnalyzer()
 
-def send_tweets_to_spark(http_resp, tcp_connection):
+def process_send_tweets_to_spark(http_resp, tcp_connection):
     for line in http_resp.iter_lines():
         try:
             full_tweet = json.loads(line)
-            tweet_text = str(full_tweet['text'].encode("utf-8")).lower()
+            tweet_text = str(full_tweet['text'].encode("utf-8"))
+
+            # analysis sentiment score
             sentiment_score = analyzer.polarity_scores(tweet_text)["compound"]
             if sentiment_score >= 0.05:
                 sentiment = "POSITIVE"
@@ -26,7 +28,10 @@ def send_tweets_to_spark(http_resp, tcp_connection):
                 sentiment = "NEGATIVE"
             else:
                 sentiment = "NEUTRAL"
+
+            # separate sentiment label with tweet content
             mess =  sentiment + '||||' + tweet_text + '\n' 
+
             tcp_connection.send(bytes(mess, 'utf-8'))
         except:
             e = sys.exc_info()[0]
@@ -35,12 +40,12 @@ def send_tweets_to_spark(http_resp, tcp_connection):
 
 def get_tweets():
     url = 'https://stream.twitter.com/1.1/statuses/filter.json'
-    # query_data = [('language', 'en'), ('locations', '105.529736,20.746974,106.055520,21.151965')]
-    # query_data = [('language', 'en'), ('locations', '-122.75,36.8,-121.75,37.8,-74,40,-73,41')] #this location value is San Francisco & NYC
+    # get tweet from @realDonaldTrump
     query_data = [('language', 'en'), ('follow', '25073877')]
     query_url = url + '?' + '&'.join([str(t[0]) + '=' + str(t[1]) for t in query_data])
     response = requests.get(query_url, auth=my_auth, stream=True)
     print(query_url, response)
+    
     return response
 
 
@@ -54,7 +59,7 @@ print("Waiting for TCP connection...")
 conn, addr = s.accept()
 print("Connected... Starting getting tweets.")
 resp = get_tweets()
-send_tweets_to_spark(resp,conn)
+process_send_tweets_to_spark(resp, conn)
 
 
 

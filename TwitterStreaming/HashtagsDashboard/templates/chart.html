@@ -2,25 +2,21 @@
 <html>
     <head>
         <meta charset="utf-8"/>
-        <title>Top Trending Twitter Hashtags</title>
+        <title>Donald Trump's Tweet Sentiment</title>
         <script src='static/Chart.js'></script>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-
-
     </head>
 
     <body>
         <center>
-            <h2>Top Trending Twitter Hashtags</h2>
+            <h2>Donald Trump's Tweet Sentiment</h2>
             <div style="width:700px;height=500px">
                 <canvas id="chart"></canvas>
             </div>
         </center>
 
         <script>
-
            var ctx = document.getElementById("chart");
-
            var myChart = new Chart(ctx, {
                 type: 'horizontalBar',
                 data: {
@@ -72,32 +68,28 @@
                 }
            });
 
-
            var src_Labels = [];
            var src_Data_pos = [];
            var src_Data_neu = [];
            var src_Data_neg = [];
 
-            // setInterval(function(){
-            //     $.getJSON('/refreshData', {
-            //     }, function(data) {
-            //         src_Labels = data.sLabel;
-            //         src_Data_pos = data.sData_pos;
-            //         src_Data_neu = data.sData_neu;
-            //         src_Data_neg = data.sData_neg;
-            //     });
+            setInterval(function(){
+                $.getJSON('/refreshData', {
+                }, function(data) {
+                    src_Labels = data.sLabel;
+                    src_Data_pos = data.sData_pos;
+                    src_Data_neu = data.sData_neu;
+                    src_Data_neg = data.sData_neg;
+                });
 
-            //     myChart.data.labels = src_Labels;
-            //     myChart.data.datasets[0].data = src_Data_pos;
-            //     myChart.data.datasets[1].data = src_Data_neu;
-            //     myChart.data.datasets[2].data = src_Data_neg;
+                myChart.data.labels = src_Labels;
+                myChart.data.datasets[0].data = src_Data_pos;
+                myChart.data.datasets[1].data = src_Data_neu;
+                myChart.data.datasets[2].data = src_Data_neg;
                 
-            //     myChart.update();
+                myChart.update();
 
-            // },10100);
-
+            },1000);
         </script>
-
-
     </body>
 </html>
